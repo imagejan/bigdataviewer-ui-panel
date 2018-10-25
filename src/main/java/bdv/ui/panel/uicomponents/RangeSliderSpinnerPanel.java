@@ -522,7 +522,7 @@ public class RangeSliderSpinnerPanel<I extends IntegerType<I>, T extends Numeric
 		upperBoundLookup.put(currentSourceIdx, upperBound);
 
 		if (isLabeling) {
-			upperValue = 170.0;
+			upperValue = 255.0;
 			currentMaxSpinner.setValue(upperValue);
 			labelingMinMax.put(currentSourceIdx, new ValuePair<>(lowerValue, upperValue));
 		}
