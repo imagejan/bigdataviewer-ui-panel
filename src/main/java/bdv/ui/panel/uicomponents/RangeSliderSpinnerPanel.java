@@ -231,8 +231,8 @@ public class RangeSliderSpinnerPanel<I extends IntegerType<I>, T extends Numeric
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == shrinkRange) {
 					block = true;
-					lowerBound = (double) ((SpinnerNumberModel) currentMinSpinner.getModel()).getValue();//posToUpperValue(rs.getUpperValue());
-					upperBound = (double) ((SpinnerNumberModel) currentMaxSpinner.getModel()).getValue();//posToLowerValue(rs.getValue());
+					lowerBound = (double) ((SpinnerNumberModel) currentMinSpinner.getModel()).getValue();
+					upperBound = (double) ((SpinnerNumberModel) currentMaxSpinner.getModel()).getValue();
 					upperValue = upperBound;
 					lowerValue = lowerBound;
 					upperBoundLookup.put(currentSourceIdx, upperValue);
