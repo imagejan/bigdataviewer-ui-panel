@@ -48,6 +48,7 @@ import bdv.BehaviourTransformEventHandlerFactory;
 import bdv.BigDataViewer;
 import bdv.BigDataViewerActions;
 import bdv.cache.CacheControl.CacheControls;
+import bdv.tools.HelpDialog;
 import bdv.tools.bookmarks.Bookmarks;
 import bdv.tools.bookmarks.BookmarksEditor;
 import bdv.tools.brightness.SetupAssignments;
@@ -59,6 +60,7 @@ import bdv.util.BdvOptions;
 import bdv.viewer.DisplayMode;
 import bdv.viewer.NavigationActions;
 import bdv.viewer.ViewerOptions;
+import bdv.viewer.ViewerPanel;
 import bdv.viewer.ViewerPanel.AlignPlane;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.IntegerType;
@@ -85,6 +87,8 @@ public class BDVHandlePanel<I extends IntegerType<I>, T extends NumericType<T>, 
 
 	private final TriggerBehaviourBindings triggerbindings;
 
+	private HelpDialog helpDialog;
+
 	public BDVHandlePanel(final Frame dialogOwner, final BdvOptions options,
 			final Map<Integer, ColorTableConverter<L>> convs) {
 		super(dialogOwner, options);
@@ -98,7 +102,7 @@ public class BDVHandlePanel<I extends IntegerType<I>, T extends NumericType<T>, 
 
 		cacheControls = new CacheControls();
 
-		viewer = new BdvViewerPanel(new ArrayList<>(), 1, cacheControls, viewerOptions);
+		viewer = new ViewerPanel(new ArrayList<>(), 1, cacheControls, viewerOptions);
 		if (!options.values.hasPreferredSize())
 			viewer.getDisplay().setPreferredSize(null);
 			viewer.getDisplay().addComponentListener(new ComponentAdapter() {
@@ -140,10 +144,13 @@ public class BDVHandlePanel<I extends IntegerType<I>, T extends NumericType<T>, 
 		else
 			navactions.alignPlanes(viewer);
 
+		helpDialog = new HelpDialog( dialogOwner, BDVHandlePanel.class.getResource( "Help.html" ) );
+		
 		final BigDataViewerActions bdvactions = new BigDataViewerActions(inputTriggerConfig);
 		bdvactions.install(keybindings, "bdv");
 		bdvactions.bookmarks(bookmarksEditor);
 		bdvactions.manualTransform(manualTransformationEditor);
+		bdvactions.dialog(helpDialog);
 
 		new IntensityMouseOverOverlay<L, I>(viewer, convs);
 
