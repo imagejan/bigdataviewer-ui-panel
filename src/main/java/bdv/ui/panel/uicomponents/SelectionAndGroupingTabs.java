@@ -420,7 +420,6 @@ public class SelectionAndGroupingTabs<I extends IntegerType<I>, T extends Numeri
 		block = false;
 	}
 
-	@EventHandler
 	public synchronized void removeSource(final String sourceName) {
 
 		block = true;
