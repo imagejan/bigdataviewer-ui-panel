@@ -437,14 +437,16 @@ public class BDVController<I extends IntegerType<I>, T extends NumericType<T>, L
 				}
 			} else {
 				double current = 0;
-				long step = getSliceSize(img) / 1000;
-				while (c.hasNext()) {
+				final long imgSize = getSliceSize(img);
+				final long step = imgSize / 1000;
+				long count = 0;
+				c.fwd();
+				while (count < imgSize) {
+					current = ((RealType<?>) c.get()).getRealDouble();
+					min = current < min ? current : min;
+					max = current > max ? current : max;
 					c.jumpFwd(step);
-					if (c.get() != null) {
-						current = ((RealType<?>) c.get()).getRealDouble();
-						min = current < min ? current : min;
-						max = current > max ? current : max;
-					}
+					count += step;
 				}
 			}
 
