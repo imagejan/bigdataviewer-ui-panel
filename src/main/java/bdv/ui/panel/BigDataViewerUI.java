@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -48,6 +49,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
+import org.python.antlr.PythonParser.return_stmt_return;
 import org.scijava.Context;
 import org.scijava.event.EventService;
 import org.scijava.event.EventSubscriber;
@@ -232,6 +234,14 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 		panel = new JPanel();
 		panel.setLayout(new MigLayout("fillx, filly, ins 0", "[grow]", "[grow]"));
 		panel.add(splitPane, "growx, growy");
+	}
+	
+	public void addCard(final JLabel name, final boolean closed, final JComponent component) {
+		controlsPanel.addNewCard(name, closed, component);
+	}
+	
+	public BDVHandlePanel<I, T, L> getBDVHandlePanel() {
+		return bdv.getBDVHandlePanel();
 	}
 
 	/**

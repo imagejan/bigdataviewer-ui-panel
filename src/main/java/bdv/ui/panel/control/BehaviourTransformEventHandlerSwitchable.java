@@ -39,9 +39,10 @@ import net.imglib2.ui.TransformEventHandlerFactory;
 import net.imglib2.ui.TransformListener;
 
 /**
- * Allows switching between 2D and 3D mode within the same BDV instance. 
+ * Allows switching between 2D and 3D mode within the same BDV instance.
  * 
- * Based on https://github.com/bigdataviewer/bigdataviewer-vistools/commit/94496b043e1a6d86786a02db75fd43fa739e6a77
+ * Based on
+ * https://github.com/bigdataviewer/bigdataviewer-vistools/commit/94496b043e1a6d86786a02db75fd43fa739e6a77
  * 
  * @author Tim-Oliver Buchholz, CSBD/MPI-CBG Dresden
  *

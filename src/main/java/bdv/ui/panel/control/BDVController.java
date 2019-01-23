@@ -42,6 +42,7 @@ import org.scijava.ui.behaviour.Behaviour;
 import org.scijava.ui.behaviour.BehaviourMap;
 import org.scijava.ui.behaviour.util.TriggerBehaviourBindings;
 
+import bdv.BehaviourTransformEventHandler;
 import bdv.tools.transformation.ManualTransformActiveListener;
 import bdv.tools.transformation.ManualTransformationEditor;
 import bdv.tools.transformation.TransformedSource;
@@ -93,6 +94,7 @@ import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.ui.TransformEventHandler;
 import net.imglib2.util.LinAlgHelpers;
 import net.imglib2.util.Util;
 import net.imglib2.view.Views;
@@ -255,6 +257,10 @@ public class BDVController<I extends IntegerType<I>, T extends NumericType<T>, L
 		colorTables = new HashMap<>();
 	}
 
+	public BehaviourTransformEventHandler getTransformEventHandler() {
+		return tfh;
+	}
+	
 	/**
 	 * Switch BDV between 2D and 3D mode.
 	 * 
@@ -967,5 +973,9 @@ public class BDVController<I extends IntegerType<I>, T extends NumericType<T>, L
 	 */
 	public int getNumSources() {
 		return sourceLookup.keySet().size();
+	}
+	
+	public BDVHandlePanel<I, T, L> getBDVHandlePanel() {
+		return bdvHandlePanel;
 	}
 }

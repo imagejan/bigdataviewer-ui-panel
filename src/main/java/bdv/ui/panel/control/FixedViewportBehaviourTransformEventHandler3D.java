@@ -28,6 +28,9 @@
  */
 package bdv.ui.panel.control;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.scijava.ui.behaviour.Behaviour;
 import org.scijava.ui.behaviour.ClickBehaviour;
 import org.scijava.ui.behaviour.DragBehaviour;
@@ -87,7 +90,7 @@ public class FixedViewportBehaviourTransformEventHandler3D
 	/**
 	 * Whom to notify when the {@link #affine current transform} is changed.
 	 */
-	private TransformListener<AffineTransform3D> listener;
+	private List<TransformListener<AffineTransform3D>> listeners;
 
 	/**
 	 * Copy of {@link #affine current transform} when mouse dragging started.
@@ -121,7 +124,8 @@ public class FixedViewportBehaviourTransformEventHandler3D
 
 	public FixedViewportBehaviourTransformEventHandler3D(final TransformListener<AffineTransform3D> listener,
 			final InputTriggerConfig config) {
-		this.listener = listener;
+		this.listeners = new ArrayList<>();
+		this.listeners.add(listener);
 
 		final String DRAG_TRANSLATE = "drag translate";
 		final String ZOOM_NORMAL = "scroll zoom";
@@ -178,6 +182,7 @@ public class FixedViewportBehaviourTransformEventHandler3D
 	public void setTransform(final AffineTransform3D transform) {
 		synchronized (affine) {
 			affine.set(transform);
+			notifyListener();
 		}
 	}
 
@@ -206,7 +211,7 @@ public class FixedViewportBehaviourTransformEventHandler3D
 
 	@Override
 	public void setTransformListener(final TransformListener<AffineTransform3D> transformListener) {
-		listener = transformListener;
+		listeners.add(transformListener);
 	}
 
 	@Override
@@ -215,11 +220,14 @@ public class FixedViewportBehaviourTransformEventHandler3D
 	}
 
 	/**
-	 * notifies {@link #listener} that the current transform changed.
+	 * notifies {@link #listeners} that the current transform changed.
 	 */
 	private void notifyListener() {
-		if (listener != null)
-			listener.transformChanged(affine);
+		if (listeners != null) {
+			for (TransformListener<AffineTransform3D> t : listeners) {
+				t.transformChanged(affine);
+			}
+		}
 	}
 
 	/**
