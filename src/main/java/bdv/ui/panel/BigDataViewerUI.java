@@ -32,6 +32,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +57,7 @@ import org.scijava.event.EventService;
 import org.scijava.event.EventSubscriber;
 
 import bdv.BigDataViewer;
+import bdv.tools.brightness.ConverterSetup;
 import bdv.ui.panel.control.BDVController;
 import bdv.ui.panel.control.BDVHandlePanel;
 import bdv.ui.panel.control.BehaviourTransformEventHandlerSwitchable;
@@ -67,9 +69,17 @@ import bdv.ui.panel.uicomponents.SelectionAndGroupingTabs;
 import bdv.ui.panel.uicomponents.SourceProperties;
 import bdv.ui.panel.uicomponents.TransformationPanel;
 import bdv.util.Bdv;
+import bdv.util.BdvFunctions;
 import bdv.util.BdvHandle;
+import bdv.util.BdvHandleFrame;
 import bdv.util.BdvOptions;
+import bdv.util.BdvOverlay;
+import bdv.util.BdvOverlaySource;
+import bdv.util.PlaceHolderConverterSetup;
+import bdv.util.PlaceHolderOverlayInfo;
+import bdv.util.PlaceHolderSource;
 import bdv.viewer.Source;
+import bdv.viewer.SourceAndConverter;
 import bdv.viewer.render.AccumulateProjectorFactory;
 import bdv.viewer.render.VolatileProjector;
 import gnu.trove.map.hash.TIntIntHashMap;
@@ -80,6 +90,7 @@ import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.NumericType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -286,6 +297,10 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 				new AffineTransform3D(), Double.NaN, Double.NaN);
 	}
 
+	public synchronized void addOverlay(BdvOverlay overlay, final String name) {
+		BdvFunctions.showOverlay(overlay, name, BdvOptions.options().addTo(bdv.getBDVHandlePanel().getBdvHandle()));
+	}
+
 	/**
 	 * Add labeling to the BDV-UI.
 	 * 
@@ -401,7 +416,7 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 	public void addCard(final JLabel name, final boolean closed, final JComponent component) {
 		controlsPanel.addNewCard(name, closed, component);
 	}
-	
+
 	public Map<String, JPanel> getCards() {
 		return controlsPanel.getCards();
 	}
