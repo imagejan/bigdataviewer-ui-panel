@@ -10,6 +10,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import bdv.util.BdvOptions;
 import net.imagej.ImageJ;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.realtransform.AffineTransform3D;
@@ -64,7 +65,7 @@ public class Main {
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setVisible(true);
 		
-		BigDataViewerUI bdvUI = new BigDataViewerUI<>(frame, imageJ.context());
+		BigDataViewerUI bdvUI = new BigDataViewerUI<>(frame, imageJ.context(), BdvOptions.options().preferredSize(800, 800));
 		
 		frame.getContentPane().add(bdvUI.getPanel());
 		frame.pack();

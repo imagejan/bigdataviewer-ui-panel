@@ -29,6 +29,7 @@
 package bdv.ui.panel.uicomponents;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -39,6 +40,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import org.scijava.module.Module;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -56,6 +59,8 @@ public class CardPanel extends JPanel {
 	 * Name to Component lookup.
 	 */
 	private Map<String, JComponent> lookup = new HashMap<>();
+	
+	private Map<String, JPanel> cards = new HashMap<>();
 
 	/**
 	 * Name to Boolean is card open lookup.
@@ -126,7 +131,12 @@ public class CardPanel extends JPanel {
 		this.add(card, "growx, wrap");
 		lookup.put(name.getText(), header);
 		enabledCard.put(name.getText(), true);
+		cards.put(name.getText(), card);
 		this.revalidate();
+	}
+	
+	public void addNewCard(final JLabel name, final boolean closed, final Module module) {
+		
 	}
 
 	/**
@@ -142,7 +152,12 @@ public class CardPanel extends JPanel {
 
 		this.remove(lookup.get(name));
 		lookup.remove(name);
+		cards.remove(name);
 		this.revalidate();
+	}
+	
+	public Map<String, JPanel> getCards() {
+		return cards;
 	}
 
 	/**
@@ -192,7 +207,11 @@ public class CardPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				if (enabledCard.get(name)) {
 					boolean state = openState.get(name);
-					component.setVisible(!state);
+					for ( Component c : tab.getComponents()) {
+						if (c != header) {
+							c.setVisible(!state);
+						}
+					}
 					openState.put(name, !state);
 
 					if (state) {

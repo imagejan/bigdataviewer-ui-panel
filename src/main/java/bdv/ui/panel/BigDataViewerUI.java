@@ -50,6 +50,7 @@ import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 import org.python.antlr.PythonParser.return_stmt_return;
+import org.python.modules.synchronize;
 import org.scijava.Context;
 import org.scijava.event.EventService;
 import org.scijava.event.EventSubscriber;
@@ -66,6 +67,8 @@ import bdv.ui.panel.uicomponents.SelectionAndGroupingTabs;
 import bdv.ui.panel.uicomponents.SourceProperties;
 import bdv.ui.panel.uicomponents.TransformationPanel;
 import bdv.util.Bdv;
+import bdv.util.BdvHandle;
+import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.render.AccumulateProjectorFactory;
 import bdv.viewer.render.VolatileProjector;
@@ -192,14 +195,14 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 	 * A new BigDataViewer-UI instance.
 	 * 
 	 * @param frame the parent
-	 * @param ctx context
+	 * @param ctx   context
 	 */
-	public BigDataViewerUI(final JFrame frame, final Context ctx) {
+	public BigDataViewerUI(final JFrame frame, final Context ctx, final BdvOptions options) {
 		ctx.inject(this);
 		this.es = ctx.getService(EventService.class);
 		subs = es.subscribe(this);
 
-		final BDVHandlePanel<I, T, L> bdvHandlePanel = createBDVHandlePanel(frame);
+		final BDVHandlePanel<I, T, L> bdvHandlePanel = createBDVHandlePanel(frame, options);
 
 		selectionAndGrouping = new SelectionAndGroupingTabs<>(es, bdvHandlePanel);
 
@@ -224,24 +227,18 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 		// put UI-Components and BDV into Splitpane panel
 		splitPane = createSplitPane();
 		final JScrollPane scrollPane = new JScrollPane(controlsPanel);
-		scrollPane.setPreferredSize(new Dimension(320, 600));
+		scrollPane.setPreferredSize(
+				new Dimension(370, bdv.getBDVHandlePanel().getViewerPanel().getPreferredSize().height));
 		scrollPane.getVerticalScrollBar().setUnitIncrement(20);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		splitPane.setLeftComponent(bdvHandlePanel.getViewerPanel());
 		splitPane.setRightComponent(scrollPane);
 		splitPane.getLeftComponent().setMinimumSize(new Dimension(20, 20));
+		splitPane.getLeftComponent().setPreferredSize(bdv.getBDVHandlePanel().getViewerPanel().getPreferredSize());
 
 		panel = new JPanel();
 		panel.setLayout(new MigLayout("fillx, filly, ins 0", "[grow]", "[grow]"));
 		panel.add(splitPane, "growx, growy");
-	}
-	
-	public void addCard(final JLabel name, final boolean closed, final JComponent component) {
-		controlsPanel.addNewCard(name, closed, component);
-	}
-	
-	public BDVHandlePanel<I, T, L> getBDVHandlePanel() {
-		return bdv.getBDVHandlePanel();
 	}
 
 	/**
@@ -250,15 +247,13 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 	 * @param frame parent
 	 * @return bdvHandlePanel
 	 */
-	private BDVHandlePanel<I, T, L> createBDVHandlePanel(final JFrame frame) {
+	private BDVHandlePanel<I, T, L> createBDVHandlePanel(final JFrame frame, final BdvOptions options) {
 		converters = new HashMap<>();
-		final BDVHandlePanel<I, T, L> bdvHandlePanel;
-		bdvHandlePanel = new BDVHandlePanel<>(frame,
-				Bdv.options().preferredSize(600, 600).numSourceGroups(1)
+		return new BDVHandlePanel<>(frame,
+				options.numSourceGroups(1)
 						.transformEventHandlerFactory(BehaviourTransformEventHandlerSwitchable.factory())
 						.accumulateProjectorFactory(myFactory).numRenderingThreads(1),
 				converters);
-		return bdvHandlePanel;
 	}
 
 	/**
@@ -284,6 +279,13 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 		}
 	}
 
+	public synchronized void addImage(final RandomAccessibleInterval<T> img, final String name, final Color color) {
+		final Set<String> groupNames = new HashSet<>();
+		groupNames.add("Images");
+		bdv.addImg(img, img.randomAccess().get().getClass().getSimpleName(), name, true, groupNames, color,
+				new AffineTransform3D(), Double.NaN, Double.NaN);
+	}
+
 	/**
 	 * Add labeling to the BDV-UI.
 	 * 
@@ -295,8 +297,9 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 	 * @param transformation initial transformation of the source
 	 * @param lut            look up table for the labeling
 	 */
-	public synchronized void addLabeling(RandomAccessibleInterval<LabelingType<L>> imgLab, final String type, final String name,
-			final boolean visibility, final Set<String> groupNames, final AffineTransform3D transformation, final TIntIntHashMap lut) {
+	public synchronized void addLabeling(RandomAccessibleInterval<LabelingType<L>> imgLab, final String type,
+			final String name, final boolean visibility, final Set<String> groupNames,
+			final AffineTransform3D transformation, final TIntIntHashMap lut) {
 		bdv.addLabeling(imgLab, type, name, visibility, groupNames, transformation, lut);
 		if (bdv.getNumSources() == 1) {
 			controlsPanel.setCardActive(SELECTION_CARD_NAME, true);
@@ -361,7 +364,7 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 		});
 
 		splitPane.setBackground(new Color(31, 31, 45));
-		splitPane.setDividerLocation(560);
+		splitPane.setDividerLocation(bdv.getBDVHandlePanel().getViewerPanel().getPreferredSize().width);
 		splitPane.setResizeWeight(1.0);
 
 		return splitPane;
@@ -393,6 +396,22 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 		this.es.unsubscribe(subs);
 		this.transformationPanel.unsubscribe();
 		this.selectionAndGrouping.unsubscribe();
+	}
+
+	public void addCard(final JLabel name, final boolean closed, final JComponent component) {
+		controlsPanel.addNewCard(name, closed, component);
+	}
+	
+	public Map<String, JPanel> getCards() {
+		return controlsPanel.getCards();
+	}
+
+	public BDVHandlePanel<I, T, L> getBDVHandlePanel() {
+		return bdv.getBDVHandlePanel();
+	}
+
+	public BdvHandle getBDV() {
+		return bdv.getBDVHandlePanel().getBdvHandle();
 	}
 
 }
